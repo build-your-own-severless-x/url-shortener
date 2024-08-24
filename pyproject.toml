@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "url-shortener"
+version = "0.1.0"
+description = "URL Shortener written in Python with the intention to be used in a Serverless setting"
+authors = ["Carlo Mencarelli <me@carlo.cloud>"]
+readme = "README.md"
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+requests = "*"
+boto3 = "*"
+logging = "*"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
