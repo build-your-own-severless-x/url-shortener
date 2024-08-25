@@ -10,7 +10,7 @@ license = "MIT"
 python = "^3.12"
 requests = "*"
 boto3 = "*"
-logging = "*"
+aws-lambda-powertools = "^2.43.1"
 
 [build-system]
 requires = ["poetry-core"]
