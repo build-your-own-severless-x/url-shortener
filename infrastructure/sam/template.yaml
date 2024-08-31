@@ -1,0 +1,130 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  CreateDynamoDBTable:
+    Type: String
+    Default: "true"
+    AllowedValues:
+      - "true"
+      - "false"
+    Description: "Whether to create the DynamoDB table"
+
+Conditions:
+  CreateTable: !Equals
+    - !Ref CreateDynamoDBTable
+    - "true"
+
+Resources:
+  DynamoDBTable:
+    Type: AWS::DynamoDB::Table
+    Condition: CreateTable
+    Properties:
+      TableName: UrlShortenerTable
+      BillingMode: PAY_PER_REQUEST
+      SSESpecification:
+        SSEEnabled: true
+      AttributeDefinitions:
+        - AttributeName: path
+          AttributeType: S
+      KeySchema:
+        - AttributeName: path
+          KeyType: HASH
+
+  API:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: UrlShortenerApi
+      Description: Serverless URL Shortener API
+      StageName: api
+      AlwaysDeploy: true
+      OpenApiVersion: "2.0"
+      DefinitionBody:
+        swagger: "2.0"
+        info:
+          title:
+            Ref: AWS::StackName
+        paths:
+          /:
+            x-amazon-apigateway-any-method:
+              produces:
+                - application/json
+              parameters:
+                - name: "proxy"
+                  in: "path"
+                  required: true
+                  type: "string"
+              x-amazon-apigateway-integration:
+                type: aws_proxy
+                httpMethod: POST
+                uri:
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${Function.Arn}/invocations
+              responses:
+                default:
+                  statusCode: "200"
+          /{proxy+}:
+            x-amazon-apigateway-any-method:
+              produces:
+                - application/json
+              parameters:
+                - name: "proxy"
+                  in: "path"
+                  required: true
+                  type: "string"
+              x-amazon-apigateway-integration:
+                type: aws_proxy
+                httpMethod: POST
+                uri:
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${Function.Arn}/invocations
+              responses:
+                default:
+                  statusCode: "200"
+      EndpointConfiguration:
+        Type: REGIONAL
+      Auth:
+        ResourcePolicy:
+          CustomStatements:
+            - Effect: Allow
+              Principal: "*"
+              Action: execute-api:Invoke
+              Resource: execute-api:/*/*/*
+
+  Function:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: main.handler
+      Runtime: python3.12
+      CodeUri: ../../src
+      EventInvokeConfig:
+        MaximumRetryAttempts: 0
+      Events:
+        BasePath:
+          Type: Api
+          Properties:
+            RestApiId: !Ref API
+            Path: /
+            Method: ANY
+        ProxyPath:
+          Type: Api
+          Properties:
+            RestApiId: !Ref API
+            Path: /{proxy+}
+            Method: ANY
+      Environment:
+        Variables:
+          TABLE_NAME: !If
+            - CreateTable
+            - !Ref DynamoDBTable
+            - "NoTableCreated"
+      Policies:
+        - !If
+          - CreateTable
+          - DynamoDBWritePolicy:
+              TableName: !Ref DynamoDBTable
+          - !Ref AWS::NoValue
+        - !If
+          - CreateTable
+          - DynamoDBReadPolicy:
+              TableName: !Ref DynamoDBTable
+          - !Ref AWS::NoValue
+
