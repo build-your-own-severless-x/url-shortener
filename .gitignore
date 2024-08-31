@@ -1,5 +1,5 @@
-# Created by https://www.toptal.com/developers/gitignore/api/macos,python,terraform,visualstudiocode
-# Edit at https://www.toptal.com/developers/gitignore?templates=macos,python,terraform,visualstudiocode
+# Created by https://www.toptal.com/developers/gitignore/api/macos,python,terraform,visualstudiocode,sam
+# Edit at https://www.toptal.com/developers/gitignore?templates=macos,python,terraform,visualstudiocode,sam
 
 ### macOS ###
 # General
@@ -206,6 +206,13 @@ poetry.toml
 # LSP config files
 pyrightconfig.json
 
+### SAM ###
+# Ignore build directories for the AWS Serverless Application Model (SAM)
+# Info: https://aws.amazon.com/serverless/sam/
+# Docs: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-reference.html
+
+**/.aws-sam
+
 ### Terraform ###
 # Local .terraform directories
 **/.terraform/*
@@ -261,4 +268,4 @@ terraform.rc
 .history
 .ionide
 
-# End of https://www.toptal.com/developers/gitignore/api/macos,python,terraform,visualstudiocode
+# End of https://www.toptal.com/developers/gitignore/api/macos,python,terraform,visualstudiocode,sam
