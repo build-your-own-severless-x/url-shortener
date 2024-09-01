@@ -9,11 +9,18 @@ Parameters:
       - "true"
       - "false"
     Description: "Whether to create the DynamoDB table"
+  CsvPath:
+    Type: String
+    Default: "paths.csv"
+    Description: "Path to CSV file with paths"
 
 Conditions:
   CreateTable: !Equals
     - !Ref CreateDynamoDBTable
     - "true"
+  CsvPath: !Equals
+    - !Ref CsvPath
+    - "paths.csv"
 
 Resources:
   DynamoDBTable:
@@ -115,7 +122,11 @@ Resources:
           TABLE_NAME: !If
             - CreateTable
             - !Ref DynamoDBTable
-            - "NoTableCreated"
+            - !Ref AWS::NoValue
+          CSV_PATH: !If
+            - CsvPath
+            - !Ref CsvPath
+            - !Ref AWS::NoValue
       Policies:
         - !If
           - CreateTable
