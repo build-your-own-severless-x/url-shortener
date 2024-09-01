@@ -17,7 +17,7 @@ lint = true
 capabilities = "CAPABILITY_IAM"
 confirm_changeset = true
 resolve_s3 = true
-parameter_overrides = "CreateDynamoDBTable=\"true\""
+parameter_overrides = "CreateDynamoDBTable=\"false\" CsvPath=\"paths.csv\""
 s3_prefix = "url-shortener"
 region = "us-west-2"
 profile = "prototype"
